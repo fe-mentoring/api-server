@@ -1,4 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -29,7 +33,21 @@ export class TodoService {
   }) {
     const { id, title, completed } = params;
 
-    // TODO: todo가 본인 것인지 확인해서 업데이트
+    const todo = await this.prisma.todo.findUnique({
+      where: { id },
+    });
+
+    if (!todo) {
+      throw new NotFoundException({
+        message: '존재하지 않는 todo입니다.',
+      });
+    }
+
+    if (todo.userId !== params.userId) {
+      throw new UnauthorizedException({
+        message: '본인의 todo만 수정할 수 있습니다.',
+      });
+    }
 
     const updatedTodo = await this.prisma.todo.update({
       where: { id },
@@ -42,7 +60,21 @@ export class TodoService {
   }
 
   async delete(params: { userId: number; id: number }) {
-    // TODO: todo가 본인 것인지 확인해서 업데이트
+    const todo = await this.prisma.todo.findUnique({
+      where: { id: params.id },
+    });
+
+    if (!todo) {
+      throw new NotFoundException({
+        message: '존재하지 않는 todo입니다.',
+      });
+    }
+
+    if (todo.userId !== params.userId) {
+      throw new UnauthorizedException({
+        message: '본인의 todo만 삭제할 수 있습니다.',
+      });
+    }
 
     const deletedTodo = await this.prisma.todo.delete({
       where: { id: params.id },
