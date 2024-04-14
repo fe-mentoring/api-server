@@ -5,30 +5,37 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TodoService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll(findAllDto: { userId: number }) {
+  findAll(params: { userId: number }) {
     return this.prisma.todo.findMany({
-      where: { userId: findAllDto.userId },
+      where: { userId: params.userId },
     });
   }
 
-  create(data: { title: string }) {
+  create(params: { userId: number; title: string }) {
     return this.prisma.todo.create({
-      data: {
-        userId: 1,
-        ...data,
-      },
+      data: params,
     });
   }
 
-  update(params: { id: number; title?: string; completed?: boolean }) {
+  update(params: {
+    userId: number;
+    id: number;
+    title?: string;
+    completed?: boolean;
+  }) {
     const { id, title, completed } = params;
+
+    // TODO: todo가 본인 것인지 확인해서 업데이트
+
     return this.prisma.todo.update({
       where: { id },
       data: { title, completed },
     });
   }
 
-  delete(id: number) {
-    return this.prisma.todo.delete({ where: { id } });
+  delete(params: { userId: number; id: number }) {
+    // TODO: todo가 본인 것인지 확인해서 업데이트
+
+    return this.prisma.todo.delete({ where: { id: params.id } });
   }
 }

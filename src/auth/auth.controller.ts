@@ -15,10 +15,17 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  @HttpCode(HttpStatus.CREATED)
+  @Post('signup')
+  signUp(
+    @Body() signUpDto: { email: string; username: string; password: string },
+  ) {
+    return this.authService.signUp(signUpDto);
+  }
+
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
-    console.log(signInDto);
+  signIn(@Body() signInDto: { username: string; password: string }) {
     return this.authService.signIn(signInDto.username, signInDto.password);
   }
 
