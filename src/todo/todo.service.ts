@@ -5,12 +5,19 @@ import { PrismaService } from '../prisma/prisma.service';
 export class TodoService {
   constructor(private readonly prisma: PrismaService) {}
 
-  findAll() {
-    return this.prisma.todo.findMany();
+  findAll(findAllDto: { userId: number }) {
+    return this.prisma.todo.findMany({
+      where: { userId: findAllDto.userId },
+    });
   }
 
   create(data: { title: string }) {
-    return this.prisma.todo.create({ data });
+    return this.prisma.todo.create({
+      data: {
+        userId: 1,
+        ...data,
+      },
+    });
   }
 
   update(params: { id: number; title?: string; completed?: boolean }) {

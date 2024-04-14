@@ -6,16 +6,20 @@ import {
   Param,
   Patch,
   Post,
+  UseGuards,
+  Request,
 } from '@nestjs/common';
 import { TodoService } from './todo.service';
+import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('todo')
 export class TodoController {
   constructor(private readonly todoService: TodoService) {}
 
+  @UseGuards(AuthGuard)
   @Get()
-  findAll() {
-    return this.todoService.findAll();
+  findAll(@Request() req) {
+    return this.todoService.findAll({ userId: req.user.userId });
   }
 
   @Post()
