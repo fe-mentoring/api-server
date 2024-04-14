@@ -19,14 +19,14 @@ export class TodoController {
   @UseGuards(AuthGuard)
   @Get()
   findAll(@Request() req) {
-    return this.todoService.findAll({ userId: req.user.userId });
+    return this.todoService.findAll({ userId: req.user.sub });
   }
 
   @UseGuards(AuthGuard)
   @Post()
   create(@Request() req, @Body() createTodoDto: { title: string }) {
     return this.todoService.create({
-      userId: req.user.userId,
+      userId: req.user.sub,
       title: createTodoDto.title,
     });
   }
@@ -43,7 +43,7 @@ export class TodoController {
     },
   ) {
     return this.todoService.update({
-      userId: req.user.userId,
+      userId: req.user.sub,
       id: Number(id),
       ...updateTodoDTO,
     });
@@ -53,7 +53,7 @@ export class TodoController {
   @Delete(':id')
   delete(@Request() req, @Param('id') id: string) {
     return this.todoService.delete({
-      userId: req.user.userId,
+      userId: req.user.sub,
       id: Number(id),
     });
   }

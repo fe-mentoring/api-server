@@ -11,13 +11,17 @@ export class TodoService {
     });
   }
 
-  create(params: { userId: number; title: string }) {
-    return this.prisma.todo.create({
+  async create(params: { userId: number; title: string }) {
+    const todo = await this.prisma.todo.create({
       data: params,
     });
+
+    return {
+      id: todo.id,
+    };
   }
 
-  update(params: {
+  async update(params: {
     userId: number;
     id: number;
     title?: string;
@@ -27,15 +31,25 @@ export class TodoService {
 
     // TODO: todo가 본인 것인지 확인해서 업데이트
 
-    return this.prisma.todo.update({
+    const updatedTodo = await this.prisma.todo.update({
       where: { id },
       data: { title, completed },
     });
+
+    return {
+      id: updatedTodo.id,
+    };
   }
 
-  delete(params: { userId: number; id: number }) {
+  async delete(params: { userId: number; id: number }) {
     // TODO: todo가 본인 것인지 확인해서 업데이트
 
-    return this.prisma.todo.delete({ where: { id: params.id } });
+    const deletedTodo = await this.prisma.todo.delete({
+      where: { id: params.id },
+    });
+
+    return {
+      id: deletedTodo.id,
+    };
   }
 }
