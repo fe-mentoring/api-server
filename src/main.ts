@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { patchNestJsSwagger } from 'nestjs-zod';
 import { AppModule } from './app.module';
+import { HttpExceptionFilter } from './shared/http-exception.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,6 +17,9 @@ async function bootstrap() {
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
+
+  app.enableCors();
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   await app.listen(3000);
 }

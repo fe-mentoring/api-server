@@ -12,8 +12,8 @@ import {
 import { AuthGuard } from 'src/auth/auth.guard';
 
 import { TodoService } from './todo.service';
-import { CreateTodoDto } from './dto/create-todo-dto';
-import { UpdateTodoDto } from './dto/update-todo-dto';
+import { CreateTodoRequestDto } from './dto/create-todo-request.dto';
+import { UpdateTodoRequestDto } from './dto/update-todo-request.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -21,10 +21,16 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { FindAllTodoResponseDto } from './dto/find-all-todo-response-dto';
-import { CreateTodoResponseDto } from './dto/create-todo-response-dto';
-import { UpdateTodoResponseDto } from './dto/update-todo-response-dto';
-import { DeleteTodoResponseDto } from './dto/delete-todo-response-dto';
+import { FindAllTodoResponseDto } from './dto/find-all-todo-response.dto';
+import { CreateTodoResponseDto } from './dto/create-todo-response.dto';
+import { UpdateTodoResponseDto } from './dto/update-todo-response.dto';
+import { DeleteTodoResponseDto } from './dto/delete-todo-response.dto';
+import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
+import {
+  NotFoundTodoException,
+  UnauthorizedDeleteTodoException,
+  UnauthorizedUpdateTodoException,
+} from './exception/todo.exception';
 
 @Controller('todo')
 export class TodoController {
@@ -53,7 +59,7 @@ export class TodoController {
   })
   @UseGuards(AuthGuard)
   @Post()
-  create(@Request() req, @Body() createTodoDto: CreateTodoDto) {
+  create(@Request() req, @Body() createTodoDto: CreateTodoRequestDto) {
     return this.todoService.create({
       userId: req.user.sub,
       title: createTodoDto.title,
@@ -67,13 +73,14 @@ export class TodoController {
     description: 'Todo 업데이트 성공',
     type: UpdateTodoResponseDto,
   })
+  @ApiException(() => [NotFoundTodoException, UnauthorizedUpdateTodoException])
   @UseGuards(AuthGuard)
   @Patch(':id')
   update(
     @Request() req,
     @Param('id') id: string,
     @Body()
-    updateTodoDTO: UpdateTodoDto,
+    updateTodoDTO: UpdateTodoRequestDto,
   ) {
     return this.todoService.update({
       userId: req.user.sub,
@@ -89,6 +96,7 @@ export class TodoController {
     description: 'Todo 삭제 성공',
     type: DeleteTodoResponseDto,
   })
+  @ApiException(() => [NotFoundTodoException, UnauthorizedDeleteTodoException])
   @UseGuards(AuthGuard)
   @Delete(':id')
   delete(@Request() req, @Param('id') id: string) {

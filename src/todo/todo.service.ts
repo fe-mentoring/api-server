@@ -4,6 +4,11 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import {
+  NotFoundTodoException,
+  UnauthorizedDeleteTodoException,
+  UnauthorizedUpdateTodoException,
+} from './exception/todo.exception';
 
 @Injectable()
 export class TodoService {
@@ -38,15 +43,11 @@ export class TodoService {
     });
 
     if (!todo) {
-      throw new NotFoundException({
-        message: '존재하지 않는 todo입니다.',
-      });
+      throw new NotFoundTodoException();
     }
 
     if (todo.userId !== params.userId) {
-      throw new UnauthorizedException({
-        message: '본인의 todo만 수정할 수 있습니다.',
-      });
+      throw new UnauthorizedUpdateTodoException();
     }
 
     const updatedTodo = await this.prisma.todo.update({
@@ -65,15 +66,11 @@ export class TodoService {
     });
 
     if (!todo) {
-      throw new NotFoundException({
-        message: '존재하지 않는 todo입니다.',
-      });
+      throw new NotFoundTodoException();
     }
 
     if (todo.userId !== params.userId) {
-      throw new UnauthorizedException({
-        message: '본인의 todo만 삭제할 수 있습니다.',
-      });
+      throw new UnauthorizedDeleteTodoException();
     }
 
     const deletedTodo = await this.prisma.todo.delete({

@@ -10,8 +10,8 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from './auth.guard';
 import { AuthService } from './auth.service';
-import { SignUpRequestDto } from './dto/sign-up-request-dto';
-import { SignInRequestDto } from './dto/sign-in-request-dto';
+import { SignUpRequestDto } from './dto/sign-up-request.dto';
+import { SignInRequestDto } from './dto/sign-in-request.dto';
 import {
   ApiBearerAuth,
   ApiCreatedResponse,
@@ -19,8 +19,13 @@ import {
   ApiOperation,
   ApiTags,
 } from '@nestjs/swagger';
-import { SignUpResponseDto } from './dto/sign-up-response-dto';
-import { SignInResponseDto } from './dto/sign-in-response-dto';
+import { SignUpResponseDto } from './dto/sign-up-response.dto';
+import { SignInResponseDto } from './dto/sign-in-response.dto';
+import {
+  EmailAlreadyExistsException,
+  UserNotFoundException,
+} from './exception/auth.exception';
+import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -29,6 +34,7 @@ export class AuthController {
   @ApiTags('Auth')
   @ApiOperation({ summary: '회원가입 API' })
   @ApiCreatedResponse({ description: '회원가입 성공', type: SignUpResponseDto })
+  @ApiException(() => [EmailAlreadyExistsException])
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
   signUp(@Body() signUpDto: SignUpRequestDto) {
@@ -45,6 +51,7 @@ export class AuthController {
     description: '로그인 성공 시, access token을 발급합니다.',
   })
   @ApiOkResponse({ description: '로그인 성공', type: SignInResponseDto })
+  @ApiException(() => [UserNotFoundException])
   @HttpCode(HttpStatus.OK)
   @Post('login')
   signIn(@Body() signInDto: SignInRequestDto) {

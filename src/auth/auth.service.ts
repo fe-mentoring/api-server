@@ -8,7 +8,11 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
 import { UsersService } from '../users/users.service';
-import { SignUpRequestDto } from './dto/sign-up-request-dto';
+import { SignUpRequestDto } from './dto/sign-up-request.dto';
+import {
+  EmailAlreadyExistsException,
+  UserNotFoundException,
+} from './exception/auth.exception';
 
 @Injectable()
 export class AuthService {
@@ -21,10 +25,7 @@ export class AuthService {
     const user = await this.usersService.findOne(signUpDto.email);
 
     if (user) {
-      throw new UnauthorizedException({
-        statusCode: HttpStatus.UNAUTHORIZED,
-        message: '이미 존재하는 이메일입니다.',
-      });
+      throw new EmailAlreadyExistsException();
     }
 
     const { email, username, password } = signUpDto;
@@ -45,22 +46,14 @@ export class AuthService {
   ): Promise<{ accessToken: string }> {
     const user = await this.usersService.findOne(email);
 
-    const notMatchMessage = '이메일 또는 비밀번호가 일치하지 않습니다.';
-
     if (!user) {
-      throw new NotFoundException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: notMatchMessage,
-      });
+      throw new UserNotFoundException();
     }
 
     const isPasswordMatch = await bcrypt.compare(password, user.password);
 
     if (!isPasswordMatch) {
-      throw new NotFoundException({
-        statusCode: HttpStatus.NOT_FOUND,
-        message: notMatchMessage,
-      });
+      throw new UserNotFoundException();
     }
 
     const payload = { sub: user.id, username: user.name };
