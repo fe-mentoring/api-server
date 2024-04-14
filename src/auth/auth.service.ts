@@ -1,12 +1,14 @@
 import {
-  HttpException,
   HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { UsersService } from '../users/users.service';
 import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+
+import { UsersService } from '../users/users.service';
+import { SignUpRequestDto } from './dto/sign-up-request-dto';
 
 @Injectable()
 export class AuthService {
@@ -15,11 +17,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(signUpDto: {
-    email: string;
-    username: string;
-    password: string;
-  }) {
+  async signUp(signUpDto: SignUpRequestDto) {
     const user = await this.usersService.findOne(signUpDto.email);
 
     if (user) {
@@ -31,10 +29,13 @@ export class AuthService {
 
     const { email, username, password } = signUpDto;
 
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     return this.usersService.create({
       email: email,
       name: username,
-      password: password,
+      password: hashedPassword,
     });
   }
 
@@ -44,20 +45,26 @@ export class AuthService {
   ): Promise<{ accessToken: string }> {
     const user = await this.usersService.findOne(email);
 
+    const notMatchMessage = '이메일 또는 비밀번호가 일치하지 않습니다.';
+
     if (!user) {
       throw new NotFoundException({
         statusCode: HttpStatus.NOT_FOUND,
-        message: '이메일 또는 비밀번호가 일치하지 않습니다.',
+        message: notMatchMessage,
       });
     }
 
-    if (user.password !== password) {
+    const isPasswordMatch = await bcrypt.compare(password, user.password);
+
+    if (!isPasswordMatch) {
       throw new NotFoundException({
         statusCode: HttpStatus.NOT_FOUND,
-        message: '이메일 또는 비밀번호가 일치하지 않습니다.',
+        message: notMatchMessage,
       });
     }
+
     const payload = { sub: user.id, username: user.name };
+
     return {
       accessToken: await this.jwtService.signAsync(payload),
     };

@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 
-// This should be a real class/interface representing a user entity
 export type User = {
   userId: number;
   username: string;
