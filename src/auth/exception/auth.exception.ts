@@ -17,3 +17,21 @@ export class UserNotFoundException extends UnauthorizedException {
     });
   }
 }
+
+export class UnExistTokenException extends UnauthorizedException {
+  constructor() {
+    super({
+      statusCode: 401,
+      message: '토큰이 존재하지 않습니다.',
+    });
+  }
+}
+
+export class InvalidTokenException extends UnauthorizedException {
+  constructor() {
+    super({
+      statusCode: 401,
+      message: '유효하지 않은 토큰입니다.',
+    });
+  }
+}
