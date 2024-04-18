@@ -1,9 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class SignUpResponseDto {
-  @ApiProperty({ description: '유저 ID' })
-  userId: number;
+class User {
+  @ApiProperty({ description: '유저 ID', example: 1 })
+  id: number;
 
-  @ApiProperty({ description: '유저 이름' })
-  username: string;
+  @ApiProperty({ description: '이메일', example: 'test1234@gmail.com' })
+  name: string;
+}
+
+export class SignUpResponseDto {
+  @ApiProperty({ description: '유저 정보', type: User })
+  readonly user: User;
 }

@@ -24,7 +24,7 @@ import { SignInResponseDto } from './dto/sign-in-response.dto';
 import {
   EmailAlreadyExistsException,
   UserNotFoundException,
-} from './exception/auth.exception';
+} from './auth.exception';
 import { ApiException } from '@nanogiants/nestjs-swagger-api-exception-decorator';
 
 @Controller('auth')
@@ -37,7 +37,7 @@ export class AuthController {
   @ApiException(() => [EmailAlreadyExistsException])
   @HttpCode(HttpStatus.CREATED)
   @Post('signup')
-  signUp(@Body() signUpDto: SignUpRequestDto) {
+  signUp(@Body() signUpDto: SignUpRequestDto): Promise<SignUpResponseDto> {
     return this.authService.signUp({
       email: signUpDto.email,
       username: signUpDto.username,
@@ -54,8 +54,11 @@ export class AuthController {
   @ApiException(() => [UserNotFoundException])
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  signIn(@Body() signInDto: SignInRequestDto) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+  signIn(@Body() signInDto: SignInRequestDto): Promise<SignInResponseDto> {
+    return this.authService.signIn({
+      email: signInDto.email,
+      password: signInDto.password,
+    });
   }
 
   @ApiBearerAuth()

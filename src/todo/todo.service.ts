@@ -1,29 +1,27 @@
-import {
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import {
-  NotFoundTodoException,
-  UnauthorizedDeleteTodoException,
-  UnauthorizedUpdateTodoException,
-} from './exception/todo.exception';
+import { Injectable } from '@nestjs/common';
+import { TodoRepository } from './todo.repository';
 
 @Injectable()
 export class TodoService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly todoRepository: TodoRepository) {}
 
-  findAll(params: { userId: number }) {
-    return this.prisma.todo.findMany({
-      where: { userId: params.userId },
+  async findAll(params: { userId: number }) {
+    const todos = await this.todoRepository.findAll({
+      userId: params.userId,
     });
+
+    return todos.map((todo) => ({
+      id: todo.id,
+      title: todo.title,
+      completed: todo.completed,
+      user: {
+        id: todo.userId,
+      },
+    }));
   }
 
   async create(params: { userId: number; title: string }) {
-    const todo = await this.prisma.todo.create({
-      data: params,
-    });
+    const todo = await this.todoRepository.create(params);
 
     return {
       id: todo.id,
@@ -36,24 +34,7 @@ export class TodoService {
     title?: string;
     completed?: boolean;
   }) {
-    const { id, title, completed } = params;
-
-    const todo = await this.prisma.todo.findUnique({
-      where: { id },
-    });
-
-    if (!todo) {
-      throw new NotFoundTodoException();
-    }
-
-    if (todo.userId !== params.userId) {
-      throw new UnauthorizedUpdateTodoException();
-    }
-
-    const updatedTodo = await this.prisma.todo.update({
-      where: { id },
-      data: { title, completed },
-    });
+    const updatedTodo = await this.todoRepository.update(params);
 
     return {
       id: updatedTodo.id,
@@ -61,21 +42,7 @@ export class TodoService {
   }
 
   async delete(params: { userId: number; id: number }) {
-    const todo = await this.prisma.todo.findUnique({
-      where: { id: params.id },
-    });
-
-    if (!todo) {
-      throw new NotFoundTodoException();
-    }
-
-    if (todo.userId !== params.userId) {
-      throw new UnauthorizedDeleteTodoException();
-    }
-
-    const deletedTodo = await this.prisma.todo.delete({
-      where: { id: params.id },
-    });
+    const deletedTodo = await this.todoRepository.delete(params);
 
     return {
       id: deletedTodo.id,

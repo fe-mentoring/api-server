@@ -30,7 +30,7 @@ import {
   NotFoundTodoException,
   UnauthorizedDeleteTodoException,
   UnauthorizedUpdateTodoException,
-} from './exception/todo.exception';
+} from './todo.exception';
 
 @Controller('todo')
 export class TodoController {
@@ -46,7 +46,7 @@ export class TodoController {
   })
   @UseGuards(AuthGuard)
   @Get()
-  findAll(@Request() req) {
+  findAll(@Request() req): Promise<FindAllTodoResponseDto[]> {
     return this.todoService.findAll({ userId: req.user.sub });
   }
 
@@ -59,7 +59,10 @@ export class TodoController {
   })
   @UseGuards(AuthGuard)
   @Post()
-  create(@Request() req, @Body() createTodoDto: CreateTodoRequestDto) {
+  create(
+    @Request() req,
+    @Body() createTodoDto: CreateTodoRequestDto,
+  ): Promise<CreateTodoResponseDto> {
     return this.todoService.create({
       userId: req.user.sub,
       title: createTodoDto.title,
@@ -81,7 +84,7 @@ export class TodoController {
     @Param('id') id: string,
     @Body()
     updateTodoDTO: UpdateTodoRequestDto,
-  ) {
+  ): Promise<UpdateTodoResponseDto> {
     return this.todoService.update({
       userId: req.user.sub,
       id: Number(id),
@@ -99,7 +102,10 @@ export class TodoController {
   @ApiException(() => [NotFoundTodoException, UnauthorizedDeleteTodoException])
   @UseGuards(AuthGuard)
   @Delete(':id')
-  delete(@Request() req, @Param('id') id: string) {
+  delete(
+    @Request() req,
+    @Param('id') id: string,
+  ): Promise<DeleteTodoResponseDto> {
     return this.todoService.delete({
       userId: req.user.sub,
       id: Number(id),

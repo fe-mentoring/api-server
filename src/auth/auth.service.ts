@@ -1,9 +1,4 @@
-import {
-  HttpStatus,
-  Injectable,
-  NotFoundException,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -12,7 +7,8 @@ import { SignUpRequestDto } from './dto/sign-up-request.dto';
 import {
   EmailAlreadyExistsException,
   UserNotFoundException,
-} from './exception/auth.exception';
+} from './auth.exception';
+import { SignInRequestDto } from './dto/sign-in-request.dto';
 
 @Injectable()
 export class AuthService {
@@ -33,17 +29,23 @@ export class AuthService {
     const salt = await bcrypt.genSalt();
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    return this.usersService.create({
+    const createdUser = await this.usersService.create({
       email: email,
       name: username,
       password: hashedPassword,
     });
+
+    return {
+      user: {
+        id: createdUser.id,
+        name: createdUser.name,
+      },
+    };
   }
 
-  async signIn(
-    email: string,
-    password: string,
-  ): Promise<{ accessToken: string }> {
+  async signIn(signInDto: SignInRequestDto) {
+    const { email, password } = signInDto;
+
     const user = await this.usersService.findOne(email);
 
     if (!user) {
