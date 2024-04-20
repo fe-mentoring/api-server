@@ -32,9 +32,7 @@ SWAGGER_USER="HELLO_WORLD"
 SWAGGER_PASSWORD="abcd1234"
 ```
 
-### 2. prisma 폴더 내에 dev.db 파일 생성
-
-### 3. 서버 실행
+### 2. 서버 실행
 
 ```shell
 $ pnpm install
