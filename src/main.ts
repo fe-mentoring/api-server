@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { patchNestJsSwagger } from 'nestjs-zod';
+import { ZodValidationException, patchNestJsSwagger } from 'nestjs-zod';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/http-exception.filter';
 
