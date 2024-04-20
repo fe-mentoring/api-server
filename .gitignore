@@ -35,4 +35,8 @@ lerna-debug.log*
 !.vscode/extensions.json
 .vercel
 
+# environment variables
 .env*
+
+# sqlite
+dev.db
