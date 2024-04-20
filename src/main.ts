@@ -1,11 +1,20 @@
 import { NestFactory } from '@nestjs/core';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
-import { ZodValidationException, patchNestJsSwagger } from 'nestjs-zod';
+import { patchNestJsSwagger } from 'nestjs-zod';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './shared/http-exception.filter';
+import { env } from './shared/env';
+import { VersioningType } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  app.enableCors();
+  app.setGlobalPrefix('/v1');
+  app.enableVersioning({
+    type: VersioningType.URI,
+  });
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   patchNestJsSwagger();
 
@@ -16,12 +25,9 @@ async function bootstrap() {
     .addBearerAuth()
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('api', app, document);
+  SwaggerModule.setup('docs', app, document);
 
-  app.enableCors();
-  app.useGlobalFilters(new HttpExceptionFilter());
-
-  await app.listen(3000);
+  await app.listen(env.PORT || 3000);
 }
 
 bootstrap();
