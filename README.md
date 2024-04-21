@@ -8,7 +8,7 @@
 
 ```shell
 # DB
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgres://admin:password@url:5432/postgres"
 
 # Auth
 JWT_SECRET="AWESOME_SECRET"
