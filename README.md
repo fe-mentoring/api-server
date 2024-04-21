@@ -1,6 +1,6 @@
 # API Server for fe-mentoring
 
-[fe-mentoring](https://github.com/fe-mentoring)을 위한 API 서버입니다.
+[FE 멘토링 과제](https://github.com/grow-mate/fe-mentoring-assignment)을 위한 API 서버입니다.
 
 ## 실행 방법
 
@@ -8,7 +8,7 @@
 
 ```shell
 # DB
-DATABASE_URL="postgres://admin:password@url:5432/postgres"
+DATABASE_URL="postgres://admin:password@localhost:5432/postgres"
 
 # Auth
 JWT_SECRET="AWESOME_SECRET"
